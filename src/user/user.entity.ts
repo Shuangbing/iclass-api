@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Project } from '../project/project.entity';
+import { Subject } from '../subject/subject.entity';
 
 @Entity()
 export class User {
@@ -18,6 +18,6 @@ export class User {
   @Column({ default: false })
   isActive: boolean;
 
-  @OneToMany(type => Project, project => project.user)
-  projects: Project[];
+  @OneToMany(type => Subject, subject => subject.user)
+  subjects: Subject[];
 }
