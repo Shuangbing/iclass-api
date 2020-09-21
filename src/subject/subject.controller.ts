@@ -1,4 +1,5 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { CreateSubjectDto } from './subject.dto';
 import { Subject } from './subject.entity';
 import { SubjectService } from './subject.service';
 
@@ -12,15 +13,15 @@ export class SubjectController {
   }
 
   @Post()
-  createAllSubjects() {
+  createAllSubjects(@Body() createSubjectDto: CreateSubjectDto) {
     const randomCode = Math.random().toString(36).slice(-8)
     const randomPassword = Math.random().toFixed(6).slice(-6)
     const subject = new Subject()
-    subject.title = "Demo Subject"
-    subject.description = "this is a demo subject for test."
+    subject.title = createSubjectDto.title
+    subject.description = createSubjectDto.description
     subject.code = randomCode
     subject.password = randomPassword
-    subject.permitPreGroup = true
+    subject.permitPreGroup = createSubjectDto.permitPreGroup
     return this.subjectService.createOne(subject);
   }
 }
