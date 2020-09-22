@@ -13,7 +13,7 @@ export class UserService {
   ) { }
 
 
-  createUser(email: string, password: string, firstName: string, lastName: string): Promise<User> {
+  async createUser(email: string, password: string, firstName: string, lastName: string): Promise<User> {
     const user = new User();
     user.email = email;
     user.password = bcrypt.hashSync(password, 10);
@@ -22,21 +22,21 @@ export class UserService {
     return this.usersRepository.save(user);
   }
 
-  findAll(): Promise<User[]> {
+  async findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
 
-  findAllWithProjects(): Promise<User[]> {
+  async findAllWithProjects(): Promise<User[]> {
     return this.usersRepository.find({
       relations: ["subjects"]
     });
   }
 
-  findOneById(id: string): Promise<User> {
+  async findOneById(id: string): Promise<User> {
     return this.usersRepository.findOne(id);
   }
 
-  findOneByEMail(email: string): Promise<User> {
+  async findOneByMail(email: string): Promise<User> {
     return this.usersRepository.findOne({ email: email });
   }
 
