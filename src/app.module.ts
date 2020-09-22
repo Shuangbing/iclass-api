@@ -1,18 +1,19 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserController } from './user/user.controller';
-import { MemberController } from './member/member.controller';
-import { SubjectController } from './subject/subject.controller';
-import { WorkspaceController } from './workspace/workspace.controller';
-import { WorkspaceModule } from './workspace/workspace.module';
 import { UserModule } from './user/user.module';
 import { MemberModule } from './member/member.module';
 import { SubjectModule } from './subject/subject.module';
+import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
+import { Connection } from 'typeorm';
+import { GroupModule } from './group/group.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [WorkspaceModule, UserModule, MemberModule, SubjectModule],
-  controllers: [AppController, UserController, MemberController, SubjectController, WorkspaceController],
+  imports: [TypeOrmModule.forRoot(), UserModule, MemberModule, SubjectModule, GroupModule, AuthModule],
+  controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly connection: Connection) { }
+}
