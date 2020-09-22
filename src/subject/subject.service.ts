@@ -14,8 +14,12 @@ export class SubjectService {
         return this.subjectsRepository.find({ select: ["code", "password", "title"] });
     }
 
-    async findOneById(id: string): Promise<Subject> {
-        return await this.subjectsRepository.findOne(id);
+    findAllByUserId(userId: number): Promise<Subject[]> {
+        return this.subjectsRepository.find({ select: ["code", "password", "title"], where: { "userId": userId } })
+    }
+
+    async findOneById(id: number, userId: number): Promise<Subject> {
+        return await this.subjectsRepository.findOneOrFail(id, { where: { "userId": userId } });
     }
 
     async createOne(subject: Subject): Promise<Subject> {

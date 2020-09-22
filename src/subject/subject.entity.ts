@@ -26,6 +26,9 @@ export class Subject {
   @ManyToOne(type => User, user => user.subjects)
   user: User;
 
+  @Column({ nullable: true })
+  userId: string;
+
   @OneToMany(type => Group, group => group.subject)
   groups: Group[];
 }

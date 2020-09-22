@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CreateSubjectDto } from './subject.dto';
 import { Subject } from './subject.entity';
 import { SubjectService } from './subject.service';
@@ -9,7 +9,12 @@ export class SubjectController {
 
   @Get()
   findAllSubjects() {
-    return this.subjectService.findAll();
+    return this.subjectService.findAllByUserId(1);
+  }
+
+  @Get(':subjectId')
+  findOneSubject(@Param('subjectId') subjectId) {
+    return this.subjectService.findOneById(subjectId, 1);
   }
 
   @Post()
