@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, Request, NotFoundException, Res, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateSubjectDto } from './subject.dto';
 import { Subject } from './subject.entity';
@@ -15,8 +15,9 @@ export class SubjectController {
   }
 
   @Get(':subjectCode')
-  findOneSubject(@Param('subjectCode') subjectCode, @Request() req: any) {
-    return this.subjectService.findOneByCode(subjectCode, req.user.id);
+  async findOneSubject(@Param('subjectCode') subjectCode, @Request() req: any, @Res() res: any) {
+    const subject = await this.subjectService.findOneByCode(subjectCode, req.user.id);
+    return subject ?? res.status(404).send()
   }
 
   @Post()

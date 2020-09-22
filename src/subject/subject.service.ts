@@ -23,7 +23,7 @@ export class SubjectService {
   }
 
   async findOneByCode(subjectCode: string, userId: number): Promise<Subject> {
-    return (await this.subjectsRepository.findOne({ select: ["code", "password", "title"], where: { "code": subjectCode, "userId": userId } }))
+    return await this.subjectsRepository.findOne({ select: ["code", "password", "title"], where: { "code": subjectCode, "userId": userId } })
   }
 
   async createOne(subject: Subject): Promise<Subject> {

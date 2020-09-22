@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class Member {
@@ -16,4 +16,10 @@ export class Member {
 
   @Column({ default: false })
   isActive: boolean;
+
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt: Date;
+
+  @CreateDateColumn({ type: "timestamp" })
+  updatedAt: Date;
 }
