@@ -2,7 +2,7 @@ import { Controller, Get, Post, UseGuards, Request, Response, Body, UseFilters }
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
-import { UserSignUpDto } from './user/user.dto';
+import { UserLoginDto, UserSignUpDto } from './user/user.dto';
 import { UserService } from './user/user.service';
 
 @Controller()
@@ -20,20 +20,14 @@ export class AppController {
 
   @UseGuards(AuthGuard('local'))
   @Post('auth/login')
-  async login(@Request() req: any, @Response() res: any) {
+  async login(@Body() _: UserLoginDto, @Request() req: any, @Response() res: any) {
     const { access_token } = await this.authService.login(req.user);
     res.cookie('accessToken', access_token, { httpOnly: true })
-    res.send({ message: 'login success' })
+    res.send({ message: 'Login Success.' })
   }
 
   @Post('auth/signup')
   async signUp(@Body() userSignUpDto: UserSignUpDto) {
     return this.userService.createUser(userSignUpDto);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Get('profile')
-  getProfile(@Request() req: any) {
-    return req.user;
   }
 }

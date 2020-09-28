@@ -1,13 +1,21 @@
 import { Body, Controller, Get, Param, Post, UseGuards, Request, NotFoundException, Res, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateSubjectDto } from './subject.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { Group } from 'src/group/group.entity';
+import { GroupService } from 'src/group/group.service';
+import { CreateGroupDto, CreateSubjectDto } from './subject.dto';
 import { Subject } from './subject.entity';
 import { SubjectService } from './subject.service';
+const uuid = require("uuid");
 
+@ApiTags('subject')
 @Controller('subject')
 @UseGuards(AuthGuard('jwt'))
 export class SubjectController {
-  constructor(private readonly subjectService: SubjectService) { }
+  constructor(
+    private readonly subjectService: SubjectService,
+    private readonly groupService: GroupService
+  ) { }
 
   @Get()
   findAllSubjects(@Request() req: any) {
@@ -15,9 +23,9 @@ export class SubjectController {
   }
 
   @Get(':subjectCode')
-  async findOneSubject(@Param('subjectCode') subjectCode, @Request() req: any, @Res() res: any) {
+  async findOneSubject(@Param('subjectCode') subjectCode, @Request() req: any) {
     const subject = await this.subjectService.findOneByCode(subjectCode, req.user.id);
-    return subject ?? res.status(404).send()
+    return subject
   }
 
   @Post()
@@ -33,4 +41,19 @@ export class SubjectController {
     subject.userId = req.user.id
     return this.subjectService.createOne(subject);
   }
+
+  @Post(':subjectCode/group')
+  async createGroup(@Param('subjectCode') subjectCode, @Body() createGroupDto: CreateGroupDto, @Request() req: any) {
+    const subject = await this.subjectService.findOneByCode(subjectCode, req.user.id)
+    const groupArray = []
+    for (let index = 1; index <= createGroupDto.amount; index++) {
+      const group = new Group()
+      group.title = `グループ${index}`
+      group.groupCode = uuid.v4()
+      group.subjectId = subject.id
+      groupArray.push(group)
+    }
+    return this.groupService.createMany(groupArray)
+  }
 }
+
