@@ -8,9 +8,11 @@ import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { Connection } from 'typeorm';
 import { GroupModule } from './group/group.module';
 import { AuthModule } from './auth/auth.module';
+import { ClientController } from './client/client.controller';
+import { ChatModule } from './client/chat/chat.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), UserModule, MemberModule, SubjectModule, GroupModule, AuthModule],
+  imports: [TypeOrmModule.forRoot(), UserModule, MemberModule, SubjectModule, GroupModule, AuthModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })

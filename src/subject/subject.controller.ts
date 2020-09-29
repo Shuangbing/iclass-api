@@ -53,7 +53,13 @@ export class SubjectController {
       group.subjectId = subject.id
       groupArray.push(group)
     }
-    return this.groupService.createMany(groupArray)
+    return this.groupService.createMany(groupArray);
+  }
+
+  @Get(':subjectCode/group')
+  async findGroupBySubject(@Param('subjectCode') subjectCode, @Request() req: any) {
+    const subject = await this.subjectService.findOneWithGroup(subjectCode, req.user.id);
+    return subject.groups;
   }
 }
 

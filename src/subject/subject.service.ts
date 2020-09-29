@@ -29,4 +29,8 @@ export class SubjectService {
   async createOne(subject: Subject): Promise<Subject> {
     return await this.subjectsRepository.save(subject);
   }
+
+  async findOneWithGroup(subjectCode: string, userId: number): Promise<Subject> {
+    return await this.subjectsRepository.findOne({ "code": subjectCode, "userId": userId }, { relations: ["groups"] });
+  }
 }
