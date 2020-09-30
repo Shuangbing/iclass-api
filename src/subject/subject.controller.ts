@@ -24,7 +24,7 @@ export class SubjectController {
 
   @Get(':subjectCode')
   async findOneSubject(@Param('subjectCode') subjectCode, @Request() req: any) {
-    const subject = await this.subjectService.findOneByCode(subjectCode, req.user.id);
+    const subject = await this.subjectService.findOneByCodeAndUser(subjectCode, req.user.id);
     return subject
   }
 
@@ -44,7 +44,7 @@ export class SubjectController {
 
   @Post(':subjectCode/group')
   async createGroup(@Param('subjectCode') subjectCode, @Body() createGroupDto: CreateGroupDto, @Request() req: any) {
-    const subject = await this.subjectService.findOneByCode(subjectCode, req.user.id)
+    const subject = await this.subjectService.findOneByCodeAndUser(subjectCode, req.user.id)
     const groupArray = []
     for (let index = 1; index <= createGroupDto.amount; index++) {
       const group = new Group()

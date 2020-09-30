@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
-import { User } from './user.entity';
 import { UserService } from './user.service';
 
 @ApiTags('user')

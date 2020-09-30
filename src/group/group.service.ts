@@ -17,4 +17,8 @@ export class GroupService {
   async createMany(groups: Group[]): Promise<Group[]> {
     return await this.groupsRepository.save(groups)
   }
+
+  async findByGroupId(groupId: string): Promise<Group> {
+    return await this.groupsRepository.findOne({ groupCode: groupId },{ relations: ["subject"] })
+  }
 }
