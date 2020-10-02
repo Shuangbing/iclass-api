@@ -6,7 +6,9 @@ import { GroupService } from 'src/group/group.service';
 import { CreateGroupDto, CreateSubjectDto } from './subject.dto';
 import { Subject } from './subject.entity';
 import { SubjectService } from './subject.service';
+
 const uuid = require("uuid");
+const cryptoRandom = require('crypto-random-string');
 
 @ApiTags('subject')
 @Controller('subject')
@@ -30,8 +32,8 @@ export class SubjectController {
 
   @Post()
   createAllSubjects(@Body() createSubjectDto: CreateSubjectDto, @Request() req: any) {
-    const randomCode = Math.random().toString(36).slice(-8)
-    const randomPassword = Math.random().toFixed(6).slice(-6)
+    const randomCode = cryptoRandom({ length: 10, type: 'alphanumeric' })
+    const randomPassword = cryptoRandom({ length: 6, type: 'numeric' })
     const subject = new Subject()
     subject.title = createSubjectDto.title
     subject.description = createSubjectDto.description
@@ -58,7 +60,7 @@ export class SubjectController {
 
   @Get(':subjectCode/group')
   async findGroupBySubject(@Param('subjectCode') subjectCode, @Request() req: any) {
-    const subject = await this.subjectService.findOneWithGroup(subjectCode, req.user.id);
+    const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id);
     return subject.groups;
   }
 }

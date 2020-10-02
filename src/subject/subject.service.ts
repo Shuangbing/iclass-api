@@ -22,8 +22,12 @@ export class SubjectService {
     return await this.subjectsRepository.findOne(id, { where: { "userId": userId } });
   }
 
+  async fetchOneByCode(subjectCode: string): Promise<Subject> {
+    return await this.subjectsRepository.findOne({ select: ["code", "title", "description"], where: { "code": subjectCode } })
+  }
+
   async findOneByCode(subjectCode: string): Promise<Subject> {
-    return await this.subjectsRepository.findOne({ select: ["code", "title"], where: { "code": subjectCode } })
+    return await this.subjectsRepository.findOne({ "code": subjectCode })
   }
 
   async findOneByCodeAndUser(subjectCode: string, userId: number): Promise<Subject> {
@@ -34,7 +38,11 @@ export class SubjectService {
     return await this.subjectsRepository.save(subject);
   }
 
-  async findOneWithGroup(subjectCode: string, userId: number): Promise<Subject> {
+  async findOneWithGroupAndUser(subjectCode: string, userId: number): Promise<Subject> {
     return await this.subjectsRepository.findOne({ "code": subjectCode, "userId": userId }, { relations: ["groups"] });
+  }
+
+  async findOneWithGroup(subjectCode: string): Promise<Subject> {
+    return await this.subjectsRepository.findOne({ "code": subjectCode }, { relations: ["groups"] });
   }
 }
