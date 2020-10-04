@@ -7,14 +7,13 @@ const { cookieExtractor } = require('./jwt.function');
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-teacher') {
   constructor() {
     super({
-      jwtFromRequest: cookieExtractor,
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: 'secretCode',
     });
   }
 
   async validate(payload: any) {
-    console.log(payload)
     return { id: payload.id, email: payload.email };
   }
 }

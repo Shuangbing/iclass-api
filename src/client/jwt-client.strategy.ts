@@ -7,7 +7,7 @@ const { cookieExtractor } = require('./jwt.function');
 export class JwtClientStrategy extends PassportStrategy(Strategy, 'jwt-client') {
   constructor() {
     super({
-      jwtFromRequest: cookieExtractor,
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: 'secretCodeClient',
     });
