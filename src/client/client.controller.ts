@@ -35,7 +35,7 @@ export class ClientController {
     }
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt-client'))
   @Get('group/:groupId')
   async fetchGroupByCode(@Param('groupId') groupId, @Request() req: any) {
     const group = await this.groupService.findByGroupId(groupId)

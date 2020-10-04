@@ -12,7 +12,7 @@ const cryptoRandom = require('crypto-random-string');
 
 @ApiTags('subject')
 @Controller('subject')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt-teacher'))
 export class SubjectController {
   constructor(
     private readonly subjectService: SubjectService,

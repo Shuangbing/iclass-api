@@ -16,8 +16,7 @@ import { GroupModule } from 'src/group/group.module';
       secret: 'secretCodeClient',
       signOptions: { expiresIn: '3d' },
     }),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-
+    PassportModule.register({ defaultStrategy: 'jwt-client' }),
   ],
   controllers: [ClientController],
   exports: [ClientService],
