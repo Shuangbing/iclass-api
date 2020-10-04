@@ -7,12 +7,15 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { GroupService } from 'src/group/group.service';
+import { ClientService } from '../client.service';
+const cookie = require('cookie');
 
 @WebSocketGateway()
 export class ChatGateway {
 
   constructor(
-    private readonly groupService: GroupService
+    private readonly groupService: GroupService,
+    private readonly clientService: ClientService,
   ) { }
 
   @WebSocketServer()
@@ -20,6 +23,11 @@ export class ChatGateway {
 
   @SubscribeMessage('jion')
   async jionGroup(@MessageBody() data, @ConnectedSocket() client: Socket) {
+    const { clientAccessToken } = cookie.parse(client.handshake.headers.cookie);
+    if (!clientAccessToken) return { status: false, message: "認証できません" }
+    const user = await this.clientService.validateUser(clientAccessToken);
+    if (!user) return client.disconnect()
+
     const { groupId } = data
     const group = await this.groupService.findByGroupId(groupId);
     if (group) {
@@ -32,13 +40,19 @@ export class ChatGateway {
 
 
   @SubscribeMessage('send:message')
-  sendMessageToGroup(@MessageBody() data, @ConnectedSocket() client: Socket) {
+  async sendMessageToGroup(@MessageBody() data, @ConnectedSocket() client: Socket) {
+    const { clientAccessToken } = cookie.parse(client.handshake.headers.cookie);
+    const user = await this.clientService.validateUser(clientAccessToken);
     const { groupId } = data
-    if (Object.keys(client.rooms).includes(groupId)) {
-      this.server.to(groupId).emit('recive:message', data)
+    if (user && Object.keys(client.rooms).includes(groupId)) {
+      this.server.to(groupId).emit('recive:message', {
+        ...data,
+        author: user.name,
+        datetime: new Date()
+      })
       return { status: true, data: data };
     } else {
-      return { status: false, message: "送信権限がありません" };
+      client.disconnect();
     }
   }
 
@@ -47,8 +61,7 @@ export class ChatGateway {
     console.log(`Client disconnected: ${client.id}`);
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
-    console.log(client.handshake.query)
+  async handleConnection(client: Socket, ...args: any[]) {
     console.log(`Client connected: ${client.id}`);
   }
 }

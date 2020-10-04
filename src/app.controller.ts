@@ -18,10 +18,9 @@ export class AppController {
     return this.appService.apiVersion();
   }
 
-  @UseGuards(AuthGuard('local'))
   @Post('auth/login')
-  async login(@Body() _: UserLoginDto, @Request() req: any, @Response() res: any) {
-    const { access_token } = await this.authService.login(req.user);
+  async login(@Body() userLoginDto: UserLoginDto, @Response() res: any) {
+    const { access_token } = await this.authService.login(userLoginDto);
     res.cookie('accessToken', access_token, { httpOnly: true })
     res.send({ message: 'Login Success.' })
   }

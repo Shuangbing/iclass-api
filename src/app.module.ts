@@ -17,7 +17,7 @@ import { ClientModule } from './client/client.module';
     url: process.env.DATABASE_URL || 'mysql://root:root@localhost:3306/iclass-dev',
     entities: ["dist/**/*.entity{.ts,.js}"],
     synchronize: true,
-  }), UserModule, MemberModule, SubjectModule, GroupModule, AuthModule, ChatModule, ClientModule],
+  }), UserModule, MemberModule, SubjectModule, GroupModule, AuthModule, ClientModule, ChatModule],
   controllers: [AppController],
   providers: [AppService],
 })
