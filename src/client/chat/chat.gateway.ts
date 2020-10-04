@@ -23,7 +23,7 @@ export class ChatGateway {
 
   @SubscribeMessage('jion')
   async jionGroup(@MessageBody() data, @ConnectedSocket() client: Socket) {
-    const { clientAccessToken } = cookie.parse(client.handshake.headers.cookie);
+    const clientAccessToken = client.handshake.query.token;
     if (!clientAccessToken) return { status: false, message: "認証できません" }
     const user = await this.clientService.validateUser(clientAccessToken);
     if (!user) return client.disconnect()
@@ -41,7 +41,7 @@ export class ChatGateway {
 
   @SubscribeMessage('send:message')
   async sendMessageToGroup(@MessageBody() data, @ConnectedSocket() client: Socket) {
-    const { clientAccessToken } = cookie.parse(client.handshake.headers.cookie);
+    const clientAccessToken = client.handshake.query.token;
     const user = await this.clientService.validateUser(clientAccessToken);
     const { groupId } = data
     if (user && Object.keys(client.rooms).includes(groupId)) {
