@@ -1,7 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-const { cookieExtractor } = require('./jwt.function');
 
 @Injectable()
 export class JwtClientStrategy extends PassportStrategy(Strategy, 'jwt-client') {
