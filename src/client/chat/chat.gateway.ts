@@ -8,7 +8,6 @@ import {
 import { Socket, Server } from 'socket.io';
 import { GroupService } from 'src/group/group.service';
 import { ClientService } from '../client.service';
-const cookie = require('cookie');
 
 @WebSocketGateway()
 export class ChatGateway {
