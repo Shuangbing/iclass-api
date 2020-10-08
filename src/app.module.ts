@@ -10,6 +10,7 @@ import { GroupModule } from './group/group.module';
 import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './client/chat/chat.module';
 import { ClientModule } from './client/client.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -17,7 +18,7 @@ import { ClientModule } from './client/client.module';
     url: process.env.DATABASE_URL || 'mysql://root:root@localhost:3306/iclass-dev',
     entities: ["dist/**/*.entity{.ts,.js}"],
     synchronize: true,
-  }), UserModule, MemberModule, SubjectModule, GroupModule, AuthModule, ClientModule, ChatModule],
+  }), UserModule, MemberModule, SubjectModule, GroupModule, AuthModule, ClientModule, ChatModule, FileModule],
   controllers: [AppController],
   providers: [AppService],
 })
