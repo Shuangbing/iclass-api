@@ -1,14 +1,13 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, UseGuards, Request, UseInterceptors, UploadedFile, Res, Req } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express/multer/interceptors/file.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { GroupService } from 'src/group/group.service';
 import { SubjectService } from 'src/subject/subject.service';
 import { JionSubjectDto } from './client.dto';
 import { ClientService } from './client.service';
-import uuid from "uuid";
 import { AmazonS3FileInterceptor } from 'nestjs-multer-extended';
 import { FileService } from 'src/file/file.service';
 import { File } from 'src/file/file.entity';
+const uuid = require("uuid");
 
 @Controller('client')
 export class ClientController {
