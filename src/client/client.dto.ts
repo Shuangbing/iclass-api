@@ -1,26 +1,19 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsBoolean, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
 
-export class CreateSubjectDto {
+export class JionSubjectDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  title: string;
+  subjectCode: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
-  description: string;
+  password: string;
 
-  @IsBoolean()
+  @IsString()
+  @IsNotEmpty()
   @ApiProperty()
-  permitPreGroup?: boolean = true;
-}
-
-export class CreateGroupDto {
-  @IsNumber()
-  @ApiProperty()
-  @Min(1)
-  @Max(15)
-  amount: number;
+  name: string;
 }

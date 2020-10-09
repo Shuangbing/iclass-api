@@ -1,24 +1,28 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { UserSignUpDto } from './user.dto';
+import { Body, Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 
+@ApiTags('user')
+@UseGuards(AuthGuard('jwt-teacher'))
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
-
-  @Post('signup')
-  public signUp(@Body() req: UserSignUpDto) {
-    return this.userService.createUser(req.email, req.password, req.firstName, req.lastName);
-  }
 
   @Get()
   getAllUsers() {
     return this.userService.findAll();
   }
 
-  @Get('/subjects')
+  @Get('subjects')
   getAllUsersWithProjects() {
     return this.userService.findAllWithProjects();
+  }
+
+  @Get('profile')
+  getProfile(@Request() req: any) {
+    const user = this.userService.findOneById(req.user.id);
+    return user;
   }
 
 }
