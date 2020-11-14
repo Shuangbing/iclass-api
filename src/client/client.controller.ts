@@ -1,17 +1,22 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Response, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, UseGuards, Request, UseInterceptors, UploadedFile, Res, Req } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express/multer/interceptors/file.interceptor';
 import { AuthGuard } from '@nestjs/passport';
 import { GroupService } from 'src/group/group.service';
 import { SubjectService } from 'src/subject/subject.service';
 import { JionSubjectDto } from './client.dto';
 import { ClientService } from './client.service';
-const uuid = require("uuid");
+import uuid from "uuid";
+import { AmazonS3FileInterceptor } from 'nestjs-multer-extended';
+import { FileService } from 'src/file/file.service';
+import { File } from 'src/file/file.entity';
 
 @Controller('client')
 export class ClientController {
   constructor(
     private readonly subjectService: SubjectService,
     private readonly groupService: GroupService,
-    private readonly clientService: ClientService
+    private readonly clientService: ClientService,
+    private readonly fileService: FileService
   ) { }
 
   @Get('subject/:subjectId')
@@ -40,6 +45,24 @@ export class ClientController {
   async fetchGroupByCode(@Param('groupId') groupId, @Request() req: any) {
     const group = await this.groupService.findByGroupId(groupId)
     return { group: group, user: req.user }
+  }
+
+  @UseGuards(AuthGuard('jwt-client'))
+  @Post('group/:groupId/upload')
+  @UseInterceptors(AmazonS3FileInterceptor('file', { randomFilename: true }))
+  async groupFileUpload(@UploadedFile() uploadFile, @Param('groupId') groupId, @Req() req) {
+    const group = await this.groupService.findByGroupId(groupId);
+    const file = new File()
+    const date = new Date();
+    file.filename = uploadFile.originalname;
+    file.location = uploadFile.Location;
+    file.size = uploadFile.size;
+    file.groupId = group.id;
+    file.memberId = req.user.userId;
+    file.memberName = req.user.name;
+    file.expiredAt = new Date(date.setDate(date.getDate() + 3));
+    const fileCreate = this.fileService.createOne(file);
+    return fileCreate;
   }
 
 }
