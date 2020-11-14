@@ -7,7 +7,10 @@ import { ClientService } from './client.service';
 import { AmazonS3FileInterceptor } from 'nestjs-multer-extended';
 import { FileService } from 'src/file/file.service';
 import { File } from 'src/file/file.entity';
-const uuid = require("uuid");
+import { MemberService } from 'src/member/member.service';
+import { Member } from 'src/member/member.entity';
+
+const cryptoRandom = require('crypto-random-string');
 
 @Controller('client')
 export class ClientController {
@@ -15,28 +18,41 @@ export class ClientController {
     private readonly subjectService: SubjectService,
     private readonly groupService: GroupService,
     private readonly clientService: ClientService,
-    private readonly fileService: FileService
+    private readonly fileService: FileService,
+    private readonly memberService: MemberService
   ) { }
+
+  @Post('subject/jion')
+  async jionSubject(@Body() jionSubjectDto: JionSubjectDto) {
+    const subject = await this.subjectService.findOneByCode(jionSubjectDto.subjectCode)
+    if (subject && subject.password == jionSubjectDto.password) {
+      const randomUserId = cryptoRandom({ length: 20, type: 'alphanumeric' })
+      const member = new Member()
+      member.memberCode = randomUserId;
+      member.name = jionSubjectDto.name;
+      member.subject = subject;
+      await this.memberService.createOne(member);
+      const { access_token } = await this.clientService.generateUser({ id: randomUserId, subjectCode: subject.code, name: jionSubjectDto.name })
+      return {
+        memberId: randomUserId,
+        access_token: access_token
+      }
+    } else {
+      throw new HttpException('サブジェクトのパスワードが正しくありません', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @UseGuards(AuthGuard('jwt-client'))
+  @Get('subject/waitting')
+  async waitGroupingMembers(@Req() req) {
+    const { members } = await this.subjectService.findOneWithMember(req.user.subjectCode)
+    return members;
+  }
 
   @Get('subject/:subjectId')
   async fetchSubjectByCode(@Param('subjectId') subjectId) {
     const subject = await this.subjectService.fetchOneByCode(subjectId)
     return subject
-  }
-
-  @Post('subject/jion')
-  async jionSubject(@Body() jionSubjectDto: JionSubjectDto) {
-    const subject = await this.subjectService.findOneByCode(jionSubjectDto.subjectCode)
-    const { groups } = await this.subjectService.findOneWithGroup(jionSubjectDto.subjectCode)
-
-    if (subject && subject.password == jionSubjectDto.password) {
-      const { access_token } = await this.clientService.generateUser({ id: uuid.v4(), subjectCode: subject.code, name: jionSubjectDto.name })
-      return {
-        groupId: groups.pop().groupCode, access_token: access_token
-      }
-    } else {
-      throw new HttpException('サブジェクトのパスワードが正しくありません', HttpStatus.BAD_REQUEST);
-    }
   }
 
   @UseGuards(AuthGuard('jwt-client'))

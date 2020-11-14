@@ -1,20 +1,29 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn } from 'typeorm';
+import { Subject } from 'src/subject/subject.entity';
+import { Group } from 'src/group/group.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn, ManyToOne, Unique } from 'typeorm';
 
 @Entity()
+@Unique(["memberCode"])
 export class Member {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({})
-  email: string;
+  memberCode: string;
 
   @Column()
-  firstName: string;
+  name: string;
+
+  @ManyToOne(type => Group, group => group.members)
+  group: Group;
+
+  @ManyToOne(type => Subject, subject => subject.members)
+  subject: Subject;
 
   @Column()
-  lastName: string;
+  subjectId: number;
 
-  @Column({ default: false })
+  @Column({ default: true })
   isActive: boolean;
 
   @CreateDateColumn({ type: "timestamp" })

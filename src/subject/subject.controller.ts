@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Request, NotFoundException, Res, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, Request, NotFoundException, Res, UseInterceptors, Delete } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { Group } from 'src/group/group.entity';
 import { GroupService } from 'src/group/group.service';
+import { MemberService } from 'src/member/member.service';
 import { CreateGroupDto, CreateSubjectDto } from './subject.dto';
 import { Subject } from './subject.entity';
 import { SubjectService } from './subject.service';
@@ -16,7 +17,8 @@ const cryptoRandom = require('crypto-random-string');
 export class SubjectController {
   constructor(
     private readonly subjectService: SubjectService,
-    private readonly groupService: GroupService
+    private readonly groupService: GroupService,
+    private readonly memberSerivce: MemberService
   ) { }
 
   @Get()
@@ -46,16 +48,37 @@ export class SubjectController {
 
   @Post(':subjectCode/group')
   async createGroup(@Param('subjectCode') subjectCode, @Body() createGroupDto: CreateGroupDto, @Request() req: any) {
-    const subject = await this.subjectService.findOneByCodeAndUser(subjectCode, req.user.id)
+    const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
+    if (subject.groups.length != 0) return { status: false, message: 'すでにグループ編成しました' }
+    const members = await this.memberSerivce.fetchMemberBySubjectId(subject.id)
+    const groupMembersCount = createGroupDto.amount
+    const groupCount = Number(members.length / groupMembersCount)
     const groupArray = []
-    for (let index = 1; index <= createGroupDto.amount; index++) {
+    let groupIndex = 1
+
+    for (groupIndex; groupIndex <= groupCount; groupIndex++) {
       const group = new Group()
-      group.title = `グループ${index}`
+      group.title = `グループ${groupIndex}`
       group.groupCode = uuid.v4()
       group.subjectId = subject.id
+      group.members = []
+      for (let gIndex = 0; gIndex < groupMembersCount; gIndex++) group.members.push(members.shift())
       groupArray.push(group)
     }
-    return this.groupService.createMany(groupArray);
+
+    if (members.length > 1) {
+      const group = new Group()
+      group.title = `グループ${groupIndex}`
+      group.groupCode = uuid.v4()
+      group.subjectId = subject.id
+      group.members = []
+      group.members.push(...members)
+      groupArray.push(group)
+    } else {
+      groupArray.slice(-1).pop().members.push(...members)
+    }
+
+    return await this.groupService.createMany(groupArray)
   }
 
   @Get(':subjectCode/group')
@@ -63,5 +86,21 @@ export class SubjectController {
     const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id);
     return subject.groups;
   }
+
+  @Delete(':subjectCode/group')
+  async resetGroup(@Param('subjectCode') subjectCode, @Request() req: any) {
+    const subject = await this.subjectService.findOneByCodeAndUser(subjectCode, req.user.id);
+    await this.memberSerivce.leaveGroup(subject.id)
+    await this.groupService.resetGroup(subject.id);
+    return { status: true };
+  }
+
+  // @Delete(':subjectCode/member')
+  // async resetMember(@Param('subjectCode') subjectCode, @Request() req: any) {
+  //   const subject = await this.subjectService.findOneByCodeAndUser(subjectCode, req.user.id);
+  //   await this.memberSerivce.resetMember(subject.id);
+  //   await this.groupService.resetGroup(subject.id);
+  //   return { status: true };
+  // }
 }
 
