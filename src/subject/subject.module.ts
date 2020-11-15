@@ -12,4 +12,4 @@ import { SubjectService } from './subject.service';
   controllers: [SubjectController],
   exports: [SubjectService]
 })
-export class SubjectModule {}
+export class SubjectModule { }

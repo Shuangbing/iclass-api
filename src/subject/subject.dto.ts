@@ -20,7 +20,7 @@ export class CreateSubjectDto {
 export class CreateGroupDto {
   @IsNumber()
   @ApiProperty()
-  @Min(1)
-  @Max(15)
+  @Min(2)
+  @Max(9)
   amount: number;
 }

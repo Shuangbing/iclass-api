@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Request, NotFoundException, Res, UseInterceptors, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, Request, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 import { Group } from 'src/group/group.entity';
@@ -49,7 +49,7 @@ export class SubjectController {
   @Post(':subjectCode/group')
   async createGroup(@Param('subjectCode') subjectCode, @Body() createGroupDto: CreateGroupDto, @Request() req: any) {
     const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
-    if (subject.groups.length != 0) return { status: false, message: 'すでにグループ編成しました' }
+    if (subject.groups.length != 0) throw new HttpException('すでにグループ編成しました', HttpStatus.BAD_REQUEST)
     const members = await this.memberSerivce.fetchMemberBySubjectId(subject.id)
     const groupMembersCount = createGroupDto.amount
     const groupCount = Number(members.length / groupMembersCount)
@@ -95,12 +95,10 @@ export class SubjectController {
     return { status: true };
   }
 
-  // @Delete(':subjectCode/member')
-  // async resetMember(@Param('subjectCode') subjectCode, @Request() req: any) {
-  //   const subject = await this.subjectService.findOneByCodeAndUser(subjectCode, req.user.id);
-  //   await this.memberSerivce.resetMember(subject.id);
-  //   await this.groupService.resetGroup(subject.id);
-  //   return { status: true };
-  // }
+  @Get(':subjectCode/member/waitting')
+  async fetchWaittingMember(@Param('subjectCode') subjectCode, @Request() req: any) {
+    const { members } = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
+    return members;
+  }
 }
 
