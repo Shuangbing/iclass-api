@@ -14,6 +14,13 @@ export class ClientService {
     };
   }
 
+  async reGenerateGroupUser(user: any, groupId: string) {
+    const payload = { userId: user.userId, subjectCode: user.subjectCode, name: user.name, groupId: groupId };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
   async validateUser(token: string) {
     const user = this.jwtService.verify(token)
     return user

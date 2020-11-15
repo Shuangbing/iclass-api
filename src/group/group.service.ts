@@ -19,7 +19,7 @@ export class GroupService {
   }
 
   async findByGroupId(groupId: string): Promise<Group> {
-    return await this.groupsRepository.findOne({ groupCode: groupId }, { relations: ["subject", "files"] })
+    return await this.groupsRepository.findOne({ groupCode: groupId }, { relations: ["subject", "files", "members"] })
   }
 
   async resetGroup(subjectId: number) {

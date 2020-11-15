@@ -46,7 +46,11 @@ export class ClientController {
   @Get('subject/waitting')
   async waitGroupingMembers(@Req() req) {
     const { members } = await this.subjectService.findOneWithMember(req.user.subjectCode)
-    return members;
+    const self = await this.memberService.findOneByCode(req.user.userId)
+    return {
+      members: members,
+      self: self
+    };
   }
 
   @Get('subject/:subjectId')
@@ -56,11 +60,24 @@ export class ClientController {
   }
 
   @UseGuards(AuthGuard('jwt-client'))
-  @Get('group/:groupId')
-  async fetchGroupByCode(@Param('groupId') groupId, @Request() req: any) {
-    const group = await this.groupService.findByGroupId(groupId)
+  @Post('group/token')
+  async generateGroupToken(@Req() req) {
+    const member = await this.memberService.findOneByCode(req.user.userId)
+    const { access_token } = await this.clientService.reGenerateGroupUser(req.user, member.group.groupCode)
+    return {
+      groupCode: member.group.groupCode,
+      access_token: access_token
+    }
+  }
+
+  @UseGuards(AuthGuard('jwt-client'))
+  @Get('group')
+  async fetchGroupByCode(@Request() req: any) {
+    if (!req.user.groupId) throw new HttpException('グループに配属されていません', HttpStatus.BAD_REQUEST);
+    const group = await this.groupService.findByGroupId(req.user.groupId)
     return { group: group, user: req.user }
   }
+
 
   @UseGuards(AuthGuard('jwt-client'))
   @Post('group/:groupId/upload')

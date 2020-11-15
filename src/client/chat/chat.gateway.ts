@@ -25,9 +25,11 @@ export class ChatGateway {
     const clientAccessToken = client.handshake.query.token;
     if (!clientAccessToken) return { status: false, message: "認証できません" }
     const user = await this.clientService.validateUser(clientAccessToken);
+    
     if (!user) return client.disconnect()
 
-    const { groupId } = data
+    const { groupId } = user
+    
     const group = await this.groupService.findByGroupId(groupId);
     if (group) {
       client.join(groupId)
@@ -42,7 +44,7 @@ export class ChatGateway {
   async sendMessageToGroup(@MessageBody() data, @ConnectedSocket() client: Socket) {
     const clientAccessToken = client.handshake.query.token;
     const user = await this.clientService.validateUser(clientAccessToken);
-    const { groupId } = data
+    const { groupId } = user
     if (user && Object.keys(client.rooms).includes(groupId)) {
       this.server.to(groupId).emit('recive:message', {
         ...data,

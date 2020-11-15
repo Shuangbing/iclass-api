@@ -14,6 +14,11 @@ export class MemberService {
     return await this.membersRepository.find()
   }
 
+  async findOneByCode(memberCode: string): Promise<Member> {
+    return await this.membersRepository.findOne({ "memberCode": memberCode }, { relations: ["group"] });
+
+  }
+
   async createOne(member: Member): Promise<Member> {
     return await this.membersRepository.save(member)
   }
