@@ -16,13 +16,13 @@ export class Group {
   @Column()
   title: string;
 
-  @ManyToOne(type => Subject, subject => subject.groups)
+  @ManyToOne(type => Subject, subject => subject.groups, { nullable: false, onDelete: "CASCADE" })
   subject: Subject;
 
   @OneToMany(type => File, file => file.group)
   files: File[];
 
-  @OneToMany(type => Member, member => member.group, { nullable: false, onDelete: "CASCADE" })
+  @OneToMany(type => Member, member => member.group)
   members: Member[];
 
   @Column()

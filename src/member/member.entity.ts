@@ -14,10 +14,10 @@ export class Member {
   @Column()
   name: string;
 
-  @ManyToOne(type => Group, group => group.members)
+  @ManyToOne(type => Group, group => group.members, { nullable: true, onDelete: "CASCADE" })
   group: Group;
 
-  @ManyToOne(type => Subject, subject => subject.members)
+  @ManyToOne(type => Subject, subject => subject.members, { nullable: false, onDelete: "CASCADE" })
   subject: Subject;
 
   @Column()

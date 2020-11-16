@@ -32,6 +32,12 @@ export class SubjectController {
     return subject
   }
 
+  @Delete(':subjectCode')
+  async deleteOneSubject(@Param('subjectCode') subjectCode, @Request() req: any) {
+    const subject = await this.subjectService.deleteOneByCodeAndUser(subjectCode, req.user.id);
+    return subject
+  }
+
   @Post()
   createAllSubjects(@Body() createSubjectDto: CreateSubjectDto, @Request() req: any) {
     const randomCode = cryptoRandom({ length: 10, type: 'alphanumeric' })
@@ -50,6 +56,7 @@ export class SubjectController {
   async createGroup(@Param('subjectCode') subjectCode, @Body() createGroupDto: CreateGroupDto, @Request() req: any) {
     const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
     if (subject.groups.length != 0) throw new HttpException('すでにグループ編成しました', HttpStatus.BAD_REQUEST)
+    if (subject.members.length < 1) throw new HttpException('グルーピング待ちのメンバーがいません', HttpStatus.BAD_REQUEST)
     const members = await this.memberSerivce.fetchMemberBySubjectId(subject.id)
     const groupMembersCount = createGroupDto.amount
     const groupCount = Number(members.length / groupMembersCount)

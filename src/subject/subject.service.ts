@@ -34,6 +34,10 @@ export class SubjectService {
     return await this.subjectsRepository.findOne({ select: ["id", "code", "password", "title"], where: { "code": subjectCode, "userId": userId } })
   }
 
+  async deleteOneByCodeAndUser(subjectCode: string, userId: number) {
+    return await this.subjectsRepository.delete({ "code": subjectCode, "userId": userId })
+  }
+
   async createOne(subject: Subject): Promise<Subject> {
     return await this.subjectsRepository.save(subject);
   }
