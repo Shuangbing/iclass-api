@@ -17,7 +17,7 @@ import { MemberModule } from 'src/member/member.module';
     FileModule,
     MemberModule,
     JwtModule.register({
-      secret: 'secretCodeClient',
+      secret: process.env.CLIENT_SECRET || 'secretCodeClient',
       signOptions: { expiresIn: '3d' },
     }),
     PassportModule.register({ defaultStrategy: 'jwt-client' }),

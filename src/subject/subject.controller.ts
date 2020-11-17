@@ -56,7 +56,7 @@ export class SubjectController {
   async createGroup(@Param('subjectCode') subjectCode, @Body() createGroupDto: CreateGroupDto, @Request() req: any) {
     const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
     if (subject.groups.length != 0) throw new HttpException('すでにグループ編成しました', HttpStatus.BAD_REQUEST)
-    if (subject.members.length < 1) throw new HttpException('グルーピング待ちのメンバーがいません', HttpStatus.BAD_REQUEST)
+    if (subject.members.length < 2) throw new HttpException('最低2名のメンバーが必要です', HttpStatus.BAD_REQUEST)
     const members = await this.memberSerivce.fetchMemberBySubjectId(subject.id)
     const groupMembersCount = createGroupDto.amount
     const groupCount = Number(members.length / groupMembersCount)

@@ -9,8 +9,8 @@ import { JwtStrategy } from './jwt.strategy';
   imports: [
     UserModule,
     JwtModule.register({
-      secret: 'secretCode',
-      signOptions: { expiresIn: '30m' },
+      secret: process.env.TEACHER_SECRET || 'secretCode',
+      signOptions: { expiresIn: '1h' },
     }),
     PassportModule.register({ defaultStrategy: 'jwt-teacher' }),
   ],
