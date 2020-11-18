@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseGuards, Request, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
+import { group } from 'console';
 import { Group } from 'src/group/group.entity';
 import { GroupService } from 'src/group/group.service';
 import { MemberService } from 'src/member/member.service';
@@ -57,7 +58,18 @@ export class SubjectController {
     const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
     if (subject.groups.length != 0) throw new HttpException('すでにグループ編成しました', HttpStatus.BAD_REQUEST)
     if (subject.members.length < 2) throw new HttpException('最低2名のメンバーが必要です', HttpStatus.BAD_REQUEST)
-    const members = await this.memberSerivce.fetchMemberBySubjectId(subject.id)
+    let members = await this.memberSerivce.fetchMemberBySubjectId(subject.id)
+    const noPrepGroupingMembers = members.filter((member) => !member.prepGroupMember)
+    const prepGroupingMembers = []
+
+    members.filter((member) => member.prepGroupMember).map((member) => {
+      if (!member.isInvited) {
+        prepGroupingMembers.push([member, member.prepGroupMember])
+      }
+    })
+
+    members = [...prepGroupingMembers.flat(), ...noPrepGroupingMembers]
+
     const groupMembersCount = createGroupDto.amount
     const groupCount = Number(members.length / groupMembersCount)
     const groupArray = []
@@ -84,7 +96,6 @@ export class SubjectController {
     } else {
       groupArray.slice(-1).pop().members.push(...members)
     }
-
     return await this.groupService.createMany(groupArray)
   }
 

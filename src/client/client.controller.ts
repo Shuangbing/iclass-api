@@ -97,4 +97,19 @@ export class ClientController {
     return fileCreate;
   }
 
+  @UseGuards(AuthGuard('jwt-client'))
+  @Post('member/prep/:memberCode')
+  async prepGroupingMember(@Param('memberCode') memberCode, @Req() req) {
+    const member = await this.memberService.findOneByCode(req.user.userId)
+    const prepMember = await this.memberService.findOneByCode(memberCode)
+
+    if (prepMember && prepMember.subject.code == req.user.subjectCode) {
+      if (!member.prepGroupMember && !prepMember.prepGroupMember) {
+        await this.memberService.updatePrepMemberByCode(member, prepMember)
+      } else {
+        throw new HttpException('すでに予備編成されています', HttpStatus.BAD_REQUEST);
+      }
+    }
+    return { status: true }
+  }
 }

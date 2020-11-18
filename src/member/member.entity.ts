@@ -1,6 +1,6 @@
 import { Subject } from 'src/subject/subject.entity';
 import { Group } from 'src/group/group.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn, ManyToOne, Unique } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn, ManyToOne, Unique, OneToOne, JoinColumn } from 'typeorm';
 
 @Entity()
 @Unique(["memberCode"])
@@ -23,8 +23,15 @@ export class Member {
   @Column()
   subjectId: number;
 
+  @OneToOne(() => Member)
+  @JoinColumn()
+  prepGroupMember: Member;
+
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ default: false })
+  isInvited: boolean;
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;

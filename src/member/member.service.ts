@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { createQueryBuilder, Repository } from 'typeorm';
 import { Member } from './member.entity';
 
 @Injectable()
@@ -15,8 +15,7 @@ export class MemberService {
   }
 
   async findOneByCode(memberCode: string): Promise<Member> {
-    return await this.membersRepository.findOne({ "memberCode": memberCode }, { relations: ["group"] });
-
+    return await this.membersRepository.findOne({ "memberCode": memberCode }, { relations: ["group", "subject", "prepGroupMember"] });
   }
 
   async createOne(member: Member): Promise<Member> {
@@ -28,7 +27,15 @@ export class MemberService {
   }
 
   async fetchMemberBySubjectId(subjectId: number) {
-    return await this.membersRepository.find({ subjectId: subjectId })
+    return await this.membersRepository.find({ where: { "subjectId": subjectId }, relations: ["prepGroupMember"] })
+  }
+
+  async updatePrepMemberByCode(member: Member, prepMember: Member) {
+    member.prepGroupMember = prepMember
+    member.isInvited = false
+    prepMember.prepGroupMember = member
+    prepMember.isInvited = true
+    return await this.membersRepository.save([member, prepMember])
   }
 
   async leaveGroup(subjectId: number) {
