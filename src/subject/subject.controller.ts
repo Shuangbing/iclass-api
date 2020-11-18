@@ -30,6 +30,7 @@ export class SubjectController {
   @Get(':subjectCode')
   async findOneSubject(@Param('subjectCode') subjectCode, @Request() req: any) {
     const subject = await this.subjectService.findOneByCodeAndUser(subjectCode, req.user.id);
+    if (!subject) throw new HttpException('サブジェクトが見つかりません', HttpStatus.BAD_REQUEST)
     return subject
   }
 

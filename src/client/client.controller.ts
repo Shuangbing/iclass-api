@@ -9,9 +9,11 @@ import { FileService } from 'src/file/file.service';
 import { File } from 'src/file/file.entity';
 import { MemberService } from 'src/member/member.service';
 import { Member } from 'src/member/member.entity';
+import { ApiTags } from '@nestjs/swagger';
 
 const cryptoRandom = require('crypto-random-string');
 
+@ApiTags('client')
 @Controller('client')
 export class ClientController {
   constructor(
@@ -56,7 +58,10 @@ export class ClientController {
   @Get('subject/:subjectId')
   async fetchSubjectByCode(@Param('subjectId') subjectId) {
     const subject = await this.subjectService.fetchOneByCode(subjectId)
-    return subject
+      .catch(() => {
+        throw new HttpException('サブジェクトが見つかりません', HttpStatus.BAD_REQUEST);
+      })
+    return subject;
   }
 
   @UseGuards(AuthGuard('jwt-client'))
@@ -75,6 +80,10 @@ export class ClientController {
   async fetchGroupByCode(@Request() req: any) {
     if (!req.user.groupId) throw new HttpException('グループに配属されていません', HttpStatus.BAD_REQUEST);
     const group = await this.groupService.findByGroupId(req.user.groupId)
+      .catch(() => {
+        throw new HttpException('グループが見つかりません', HttpStatus.BAD_REQUEST);
+      })
+
     return { group: group, user: req.user }
   }
 

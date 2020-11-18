@@ -23,7 +23,7 @@ export class SubjectService {
   }
 
   async fetchOneByCode(subjectCode: string): Promise<Subject> {
-    return await this.subjectsRepository.findOne({ select: ["code", "title", "description"], where: { "code": subjectCode } })
+    return await this.subjectsRepository.findOneOrFail({ select: ["code", "title", "description"], where: { "code": subjectCode } })
   }
 
   async findOneByCode(subjectCode: string): Promise<Subject> {

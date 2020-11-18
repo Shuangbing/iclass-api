@@ -21,15 +21,15 @@ export class ChatGateway {
   server: Server;
 
   @SubscribeMessage('jion')
-  async jionGroup(@MessageBody() data, @ConnectedSocket() client: Socket) {
+  async jionGroup(@ConnectedSocket() client: Socket) {
     const clientAccessToken = client.handshake.query.token;
     if (!clientAccessToken) return { status: false, message: "認証できません" }
     const user = await this.clientService.validateUser(clientAccessToken);
-    
+
     if (!user) return client.disconnect()
 
     const { groupId } = user
-    
+
     const group = await this.groupService.findByGroupId(groupId);
     if (group) {
       client.join(groupId)
