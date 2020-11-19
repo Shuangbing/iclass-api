@@ -57,6 +57,24 @@ export class ChatGateway {
     }
   }
 
+  @SubscribeMessage('send:uploaded')
+  async uploadNotification(@MessageBody() data, @ConnectedSocket() client: Socket) {
+    const clientAccessToken = client.handshake.query.token;
+    const user = await this.clientService.validateUser(clientAccessToken);
+    const { groupId } = user
+    console.log(data)
+    if (user && Object.keys(client.rooms).includes(groupId)) {
+      this.server.to(groupId).emit('recive:uploadNotification', {
+        message: `${user.name}さんが${data.fileInfo.name}をアップロードしました`,
+        author: user.name,
+        datetime: new Date()
+      })
+      return { status: true, data: data };
+    } else {
+      client.disconnect();
+    }
+  }
+
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);

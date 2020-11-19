@@ -15,7 +15,7 @@ export class SubjectService {
   }
 
   findAllByUserId(userId: number): Promise<Subject[]> {
-    return this.subjectsRepository.find({ select: ["code", "password", "title"], where: { "userId": userId } })
+    return this.subjectsRepository.find({ select: ["code", "password", "title", "description", "createdAt"], where: { "userId": userId } })
   }
 
   async findOneById(id: number, userId: number): Promise<Subject> {
@@ -39,6 +39,13 @@ export class SubjectService {
   }
 
   async createOne(subject: Subject): Promise<Subject> {
+    return await this.subjectsRepository.save(subject);
+  }
+
+  async updateSubjectByCodeAndUser(subjectCode: string, userId: number, title: string, description: string) {
+    const subject = await this.subjectsRepository.findOne({ "code": subjectCode, "userId": userId });
+    subject.title = title;
+    subject.description = description;
     return await this.subjectsRepository.save(subject);
   }
 

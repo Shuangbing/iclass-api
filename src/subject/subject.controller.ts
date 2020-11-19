@@ -1,11 +1,10 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Request, Delete, HttpException, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, Request, Delete, HttpException, HttpStatus, Put } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
-import { group } from 'console';
 import { Group } from 'src/group/group.entity';
 import { GroupService } from 'src/group/group.service';
 import { MemberService } from 'src/member/member.service';
-import { CreateGroupDto, CreateSubjectDto } from './subject.dto';
+import { CreateGroupDto, CreateSubjectDto, UpdateSubjectDto } from './subject.dto';
 import { Subject } from './subject.entity';
 import { SubjectService } from './subject.service';
 
@@ -40,6 +39,12 @@ export class SubjectController {
     return subject
   }
 
+  @Put(':subjectCode')
+  async updateOneSubject(@Param('subjectCode') subjectCode, @Body() updateSubjectDto: UpdateSubjectDto, @Request() req: any) {
+    const subject = await this.subjectService.updateSubjectByCodeAndUser(subjectCode, req.user.id, updateSubjectDto.title, updateSubjectDto.description);
+    return subject
+  }
+
   @Post()
   createAllSubjects(@Body() createSubjectDto: CreateSubjectDto, @Request() req: any) {
     const randomCode = cryptoRandom({ length: 10, type: 'alphanumeric' })
@@ -59,7 +64,7 @@ export class SubjectController {
     const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
     if (subject.groups.length != 0) throw new HttpException('すでにグループ編成しました', HttpStatus.BAD_REQUEST)
     if (subject.members.length < 2) throw new HttpException('最低2名のメンバーが必要です', HttpStatus.BAD_REQUEST)
-    let members = await this.memberSerivce.fetchMemberBySubjectId(subject.id)
+    let members = subject.members
     const noPrepGroupingMembers = members.filter((member) => !member.prepGroupMember)
     const prepGroupingMembers = []
 
@@ -116,8 +121,8 @@ export class SubjectController {
 
   @Get(':subjectCode/member/waitting')
   async fetchWaittingMember(@Param('subjectCode') subjectCode, @Request() req: any) {
-    const { members } = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
-    return members;
+    const subjects = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
+    return subjects;
   }
 }
 

@@ -24,3 +24,15 @@ export class CreateGroupDto {
   @Max(9)
   amount: number;
 }
+
+export class UpdateSubjectDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  description: string;
+}

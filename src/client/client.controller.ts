@@ -10,6 +10,7 @@ import { File } from 'src/file/file.entity';
 import { MemberService } from 'src/member/member.service';
 import { Member } from 'src/member/member.entity';
 import { ApiTags } from '@nestjs/swagger';
+import { callbackify } from 'util';
 
 const cryptoRandom = require('crypto-random-string');
 
@@ -90,7 +91,13 @@ export class ClientController {
 
   @UseGuards(AuthGuard('jwt-client'))
   @Post('group/:groupId/upload')
-  @UseInterceptors(AmazonS3FileInterceptor('file', { randomFilename: true }))
+  @UseInterceptors(AmazonS3FileInterceptor('file', {
+    limits: { fileSize: 1e+7 },
+    randomFilename: true, fileFilter: (_, file, callback) => {
+      const acceptType = ['application/pdf', 'image/gif', 'image/png', 'image/jpeg']
+      acceptType.includes(file.mimetype) ? callback(null, true) : callback(null, false)
+    }
+  }))
   async groupFileUpload(@UploadedFile() uploadFile, @Param('groupId') groupId, @Req() req) {
     const group = await this.groupService.findByGroupId(groupId);
     const file = new File()
