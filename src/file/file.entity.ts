@@ -16,7 +16,7 @@ export class File {
   @Column()
   size: number;
 
-  @ManyToOne(type => Group, group => group.files)
+  @ManyToOne(type => Group, group => group.files, { nullable: true, onDelete: "CASCADE" })
   group: Group;
 
   @Column()

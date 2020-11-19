@@ -22,8 +22,7 @@ export class AppController {
   async login(@Body() userLoginDto: UserLoginDto, @Response() res: any) {
     const user = await this.authService.validateUser(userLoginDto.email, userLoginDto.password)
     const { access_token } = await this.authService.login(user);
-    res.cookie('accessToken', access_token, { httpOnly: true })
-    res.send({ message: 'Login Success.' })
+    res.send({ access_token: access_token })
   }
 
   @Post('auth/signup')

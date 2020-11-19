@@ -8,14 +8,16 @@ import { JwtClientStrategy } from './jwt-client.strategy';
 import { GroupModule } from 'src/group/group.module';
 import { MulterExtendedModule } from 'nestjs-multer-extended';
 import { FileModule } from 'src/file/file.module';
+import { MemberModule } from 'src/member/member.module';
 
 @Module({
   imports: [
     SubjectModule,
     GroupModule,
     FileModule,
+    MemberModule,
     JwtModule.register({
-      secret: 'secretCodeClient',
+      secret: process.env.CLIENT_SECRET || 'secretCodeClient',
       signOptions: { expiresIn: '3d' },
     }),
     PassportModule.register({ defaultStrategy: 'jwt-client' }),
