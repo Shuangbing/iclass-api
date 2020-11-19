@@ -66,6 +66,14 @@ export class SubjectController {
     if (subject.members.length < 2) throw new HttpException('最低2名のメンバーが必要です', HttpStatus.BAD_REQUEST)
     let members = subject.members
     const noPrepGroupingMembers = members.filter((member) => !member.prepGroupMember)
+
+    for (var i = noPrepGroupingMembers.length - 1; i > 0; i--) {
+      var r = Math.floor(Math.random() * (i + 1));
+      var tmp = noPrepGroupingMembers[i];
+      noPrepGroupingMembers[i] = noPrepGroupingMembers[r];
+      noPrepGroupingMembers[r] = tmp;
+    }
+
     const prepGroupingMembers = []
 
     members.filter((member) => member.prepGroupMember).map((member) => {
