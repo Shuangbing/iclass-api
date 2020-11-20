@@ -51,7 +51,6 @@ export class ChatGateway {
         author: user.name,
         datetime: new Date()
       })
-      return { status: true, data: data };
     } else {
       client.disconnect();
     }
@@ -62,14 +61,40 @@ export class ChatGateway {
     const clientAccessToken = client.handshake.query.token;
     const user = await this.clientService.validateUser(clientAccessToken);
     const { groupId } = user
-    console.log(data)
     if (user && Object.keys(client.rooms).includes(groupId)) {
       this.server.to(groupId).emit('recive:uploadNotification', {
         message: `${user.name}さんが${data.fileInfo.name}をアップロードしました`,
-        author: user.name,
-        datetime: new Date()
       })
-      return { status: true, data: data };
+    } else {
+      client.disconnect();
+    }
+  }
+
+  @SubscribeMessage('send:startScreenShare')
+  async startScreenShare(@ConnectedSocket() client: Socket) {
+    const clientAccessToken = client.handshake.query.token;
+    const user = await this.clientService.validateUser(clientAccessToken);
+    const { groupId } = user
+    if (user && Object.keys(client.rooms).includes(groupId)) {
+      this.server.to(groupId).emit('recive:startScreenShare', {
+        message: `${user.name}さんが画面共有を開始しました`,
+        memberCode: user.userId
+      })
+    } else {
+      client.disconnect();
+    }
+  }
+
+  @SubscribeMessage('send:stopScreenShare')
+  async stopScreenShare(@ConnectedSocket() client: Socket) {
+    const clientAccessToken = client.handshake.query.token;
+    const user = await this.clientService.validateUser(clientAccessToken);
+    const { groupId } = user
+    if (user && Object.keys(client.rooms).includes(groupId)) {
+      this.server.to(groupId).emit('recive:stopScreenShare', {
+        message: `${user.name}さんが画面共有を終了しました`,
+        memberCode: user.userId
+      })
     } else {
       client.disconnect();
     }
