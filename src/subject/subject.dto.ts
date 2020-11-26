@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
 
 export class CreateSubjectDto {
   @IsString()
@@ -23,6 +23,12 @@ export class CreateGroupDto {
   @Min(2)
   @Max(9)
   amount: number;
+}
+
+export class CreateCustomGroupDto {
+  @IsArray()
+  @ApiProperty()
+  members: any;
 }
 
 export class UpdateSubjectDto {

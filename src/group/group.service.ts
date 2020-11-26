@@ -18,6 +18,10 @@ export class GroupService {
     return await this.groupsRepository.save(groups)
   }
 
+  async createOne(group: Group): Promise<Group> {
+    return await this.groupsRepository.save(group)
+  }
+
   async findByGroupId(groupId: string): Promise<Group> {
     return await this.groupsRepository.findOneOrFail({ groupCode: groupId }, { relations: ["subject", "files", "members"] })
   }
