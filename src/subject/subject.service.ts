@@ -50,7 +50,7 @@ export class SubjectService {
   }
 
   async findOneWithGroupAndUser(subjectCode: string, userId: number): Promise<Subject> {
-    return await this.subjectsRepository.findOne({ "code": subjectCode, "userId": userId }, { relations: ["groups", "groups.members", "members"] });
+    return await this.subjectsRepository.findOne({ "code": subjectCode, "userId": userId }, { relations: ["groups", "groups.members", "members", "members.group"] });
   }
 
   async findOneWithGroup(subjectCode: string): Promise<Subject> {

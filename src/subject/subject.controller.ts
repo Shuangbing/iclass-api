@@ -4,7 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Group } from 'src/group/group.entity';
 import { GroupService } from 'src/group/group.service';
 import { MemberService } from 'src/member/member.service';
-import { CreateGroupDto, CreateSubjectDto, UpdateSubjectDto } from './subject.dto';
+import { CreateCustomGroupDto, CreateGroupDto, CreateSubjectDto, UpdateSubjectDto } from './subject.dto';
 import { Subject } from './subject.entity';
 import { SubjectService } from './subject.service';
 
@@ -62,9 +62,10 @@ export class SubjectController {
   @Post(':subjectCode/group')
   async createGroup(@Param('subjectCode') subjectCode, @Body() createGroupDto: CreateGroupDto, @Request() req: any) {
     const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
-    if (subject.groups.length != 0) throw new HttpException('すでにグループ編成しました', HttpStatus.BAD_REQUEST)
+    let members = subject.members.filter((member) => !member.group)
+    if (members.length == 0) throw new HttpException('すでにグループ編成しました', HttpStatus.BAD_REQUEST)
     if (subject.members.length < 2) throw new HttpException('最低2名のメンバーが必要です', HttpStatus.BAD_REQUEST)
-    let members = subject.members
+
     const noPrepGroupingMembers = members.filter((member) => !member.prepGroupMember)
 
     for (var i = noPrepGroupingMembers.length - 1; i > 0; i--) {
@@ -87,7 +88,7 @@ export class SubjectController {
     const groupMembersCount = createGroupDto.amount
     const groupCount = Number(members.length / groupMembersCount)
     const groupArray = []
-    let groupIndex = 1
+    let groupIndex = (subject.groups.length == 0) ? 1 : subject.groups.length + 1
 
     for (groupIndex; groupIndex <= groupCount; groupIndex++) {
       const group = new Group()
@@ -111,6 +112,20 @@ export class SubjectController {
       groupArray.slice(-1).pop().members.push(...members)
     }
     return await this.groupService.createMany(groupArray)
+  }
+
+  @Post(':subjectCode/group/custom')
+  async createCustomGroup(@Param('subjectCode') subjectCode, @Body() createCustomGroupDto: CreateCustomGroupDto, @Request() req: any) {
+    const subject = await this.subjectService.findOneWithGroupAndUser(subjectCode, req.user.id)
+    let { members } = subject
+    members = members.filter((member) => createCustomGroupDto.members.includes(member.memberCode))
+    let groupIndex = (subject.groups.length == 0) ? 1 : subject.groups.length + 1
+    const group = new Group()
+    group.title = `グループ${groupIndex}`
+    group.groupCode = uuid.v4()
+    group.subjectId = subject.id
+    group.members = [...members]
+    return await this.groupService.createOne(group)
   }
 
   @Get(':subjectCode/group')
